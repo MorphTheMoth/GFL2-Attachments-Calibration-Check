@@ -1,4 +1,4 @@
-# [cleanMineSweeper](https://morphthemoth.github.io/GFL2-Attachments-Calibration-Check/)
+# [GFL2 Attachments Calibration Check](https://morphthemoth.github.io/GFL2-Attachments-Calibration-Check/)
 
 you can use it [here](https://morphthemoth.github.io/GFL2-Attachments-Calibration-Check/).
 
