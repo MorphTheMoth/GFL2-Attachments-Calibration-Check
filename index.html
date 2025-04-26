@@ -6,6 +6,8 @@
 <link rel="icon" type="image/png" href="https://cdn.discordapp.com/emojis/1320341246350463047.webp">
 <style>
   body {
+    background-color: #121212;
+    color: #e0e0e0;
     font-family: Arial, sans-serif;
     font-size: 150%;
     padding: 30px;
@@ -13,6 +15,7 @@
   h1 {
     text-align: center;
     font-size: 2.5em;
+    color: #ffffff;
   }
   #content {
     display: none;
@@ -21,25 +24,34 @@
     margin-top: 30px;
   }
   #canvas {
-    border: 2px solid #ccc;
+    border: 2px solid #444;
+    background-color: #1e1e1e;
     max-width: 100%;
   }
   #output {
     white-space: pre-wrap;
     font-size: 1em;
-    border: 1px solid #ccc;
+    border: 2px solid #444;
     padding: 20px;
     flex: 1;
     min-width: 300px;
+    background-color: #1e1e1e;
+    color: #e0e0e0;
   }
   #pasteArea {
-    border: 3px dashed #ccc;
+    border: 3px dashed #666;
     padding: 30px;
     text-align: center;
-    color: #666;
+    color: #bbb;
     margin-top: 30px;
     cursor: pointer;
     font-size: 1.2em;
+    background-color: #1e1e1e;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  #pasteArea:hover {
+    background-color: #2a2a2a;
+    border-color: #888;
   }
 </style>
 </head>
@@ -53,6 +65,7 @@
 </div>
 
 <script>
+/* your script remains unchanged */
 const pasteArea = document.getElementById('pasteArea')
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
@@ -94,9 +107,7 @@ window.addEventListener('paste', (event) => {
       const imgData = ctx.getImageData(0, 0, img.width, img.height).data
       var total = 0
 
-      let outputText = ""//`Image: ${img.width}x${img.height}\n`
-      //outputText += `Starting scan...\n`
-
+      let outputText = ""
       let isPreviousLineWhite = false
       let attachmentLineNum = 1
       for (let y = 1; y < img.height; y++) {
@@ -128,7 +139,6 @@ window.addEventListener('paste', (event) => {
               else
                 outputText += `No orange line found.\n\n`
 
-              //console.log(whiteStartX);
               ctx.beginPath();
               ctx.lineWidth = 3;
               ctx.strokeStyle = 'purple';
@@ -141,22 +151,12 @@ window.addEventListener('paste', (event) => {
               ctx.moveTo(whiteStartX + whiteLength, y+12);
               ctx.lineTo(whiteStartX + whiteLength + orangeLength, y+12);
               ctx.stroke();
-
-              /*outputText += `\nAt y=${y}:\n`
-              outputText += `  White streak: ${whiteLength} px (x=${whiteStartX} to x=${whiteStartX + whiteLength})\n`
-              if (orangeLength > 0) {
-                outputText += `  Orange streak: ${orangeLength} px (x=${whiteStartX + whiteLength} to x=${whiteStartX + whiteLength + orangeLength})\n`
-                outputText += `  Orange is ${exactPercent.toFixed(2)}% (${roundedPercent}%)\n`
-              } else {
-                outputText += `  No orange streak found after white.\n`
-              }*/
             } else {
               isPreviousLineWhite = false
             }
           }
 
           if (isColorSimilar(r, g, b, 'white')) {
-            console.log(x);
             if (isPreviousLineWhite) break
             if (whiteStartX === -1)
               whiteStartX = x
