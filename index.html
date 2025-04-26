@@ -84,6 +84,7 @@ window.addEventListener('paste', (event) => {
     const file = item.getAsFile()
     const img = new Image()
 
+
     img.onload = () => {
       canvas.width = img.width
       canvas.height = img.height
@@ -91,6 +92,7 @@ window.addEventListener('paste', (event) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(img, 0, 0)
       const imgData = ctx.getImageData(0, 0, img.width, img.height).data
+      var total = 0
 
       let outputText = ""//`Image: ${img.width}x${img.height}\n`
       //outputText += `Starting scan...\n`
@@ -118,8 +120,9 @@ window.addEventListener('paste', (event) => {
               console.log(`white ${whiteLength}, orange ${orangeLength}`);
               const exactPercent = orangeLength > 0 ? ((orangeLength) / (whiteLength)) * 100 : 0
               const roundedPercent = Math.round(exactPercent / 10) * 10
+              total += roundedPercent
 
-              outputText += `${attachmentLineNum++}:  `
+              outputText += `${attachmentLineNum++}  -  `
               if (orangeLength > 0)
                 outputText += `${roundedPercent}% (${exactPercent.toFixed(1)}%)\n\n`
               else
@@ -174,7 +177,7 @@ window.addEventListener('paste', (event) => {
         }
       }
       document.getElementById('content').style.display = "flex"
-      output.innerText = outputText.slice(0, outputText.length-2)
+      output.innerText = outputText + `Total  -  ${total}%`
     }
 
     const reader = new FileReader()
