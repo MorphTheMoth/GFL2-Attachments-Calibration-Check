@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attachments Calibration Check</title>
+<link rel="icon" type="image/png" href="https://cdn.discordapp.com/emojis/1320341246350463047.webp">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 150%;
+    padding: 30px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.5em;
+  }
+  #content {
+    display: none;
+    align-items: flex-start;
+    gap: 30px;
+    margin-top: 30px;
+  }
+  #canvas {
+    border: 2px solid #ccc;
+    max-width: 100%;
+  }
+  #output {
+    white-space: pre-wrap;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    padding: 20px;
+    flex: 1;
+    min-width: 300px;
+  }
+  #pasteArea {
+    border: 3px dashed #ccc;
+    padding: 30px;
+    text-align: center;
+    color: #666;
+    margin-top: 30px;
+    cursor: pointer;
+    font-size: 1.2em;
+  }
+</style>
+</head>
+<body>
+
+<h1>Attachments Calibration Check</h1>
+<div id="pasteArea">Paste An Image (Use Win+Shift+S)</div>
+<div id="content">
+  <canvas id="canvas"></canvas>
+  <div id="output"></div>
+</div>
+
+<script>
+const pasteArea = document.getElementById('pasteArea')
+const canvas = document.getElementById('canvas')
+const ctx = canvas.getContext('2d')
+const output = document.getElementById('output')
+
+// Helper to compare colors with ±5% tolerance
+function isColorSimilar(r, g, b, color) {
+  const tolerance = 0.03
+  const targetColors = {
+    'white': [0xEF, 0xEF, 0xEF],
+    'orange': [0xF3, 0x6C, 0x1C]
+  }
+  const [tr, tg, tb] = targetColors[color]
+  return (
+    Math.abs(r - tr) <= 255 * tolerance &&
+    Math.abs(g - tg) <= 255 * tolerance &&
+    Math.abs(b - tb) <= 255 * tolerance
+  )
+}
+
+const MIN_STREAK_LENGTH = 50
+const MAX_TOLERANCE_PIXELS = 5 // how many wrong pixels to tolerate during orange search
+
+window.addEventListener('paste', (event) => {
+  const items = (event.clipboardData || event.originalEvent.clipboardData).items
+  for (const item of items) {
+    if (!(item.type.indexOf('image') === 0)) continue
+
+    const file = item.getAsFile()
+    const img = new Image()
+
+    img.onload = () => {
+      canvas.width = img.width
+      canvas.height = img.height
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0)
+      const imgData = ctx.getImageData(0, 0, img.width, img.height).data
+
+      let outputText = ""//`Image: ${img.width}x${img.height}\n`
+      //outputText += `Starting scan...\n`
+
+      let isPreviousLineWhite = false
+      let attachmentLineNum = 1
+      for (let y = 1; y < img.height; y++) {
+        let whiteLength = 0
+        let whiteStartX = -1
+        let orangeLength = 0
+        let wrongPixels = 0
+
+        for (let x = 0; x <= img.width; x++) {
+          const imgIndex = (y * img.width + x) * 4
+          const r = imgData[imgIndex]
+          const g = imgData[imgIndex + 1]
+          const b = imgData[imgIndex + 2]
+
+          if (x === img.width) {
+
+            if (whiteStartX != -1 && whiteLength >= MIN_STREAK_LENGTH){
+              isPreviousLineWhite = true
+              orangeLength += -wrongPixels + 2
+              whiteLength += + 1
+              console.log(`white ${whiteLength}, orange ${orangeLength}`);
+              const exactPercent = orangeLength > 0 ? ((orangeLength) / (whiteLength)) * 100 : 0
+              const roundedPercent = Math.round(exactPercent / 10) * 10
+
+              outputText += `${attachmentLineNum++}:  `
+              if (orangeLength > 0)
+                outputText += `${roundedPercent}% (${exactPercent.toFixed(1)}%)\n\n`
+              else
+                outputText += `No orange line found.\n\n`
+
+              //console.log(whiteStartX);
+              ctx.beginPath();
+              ctx.lineWidth = 3;
+              ctx.strokeStyle = 'purple';
+              ctx.moveTo(--whiteStartX, y+12);
+              ctx.lineTo(whiteStartX + whiteLength, y+12);
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.lineWidth = 3;
+              ctx.strokeStyle = 'white';
+              ctx.moveTo(whiteStartX + whiteLength, y+12);
+              ctx.lineTo(whiteStartX + whiteLength + orangeLength, y+12);
+              ctx.stroke();
+
+              /*outputText += `\nAt y=${y}:\n`
+              outputText += `  White streak: ${whiteLength} px (x=${whiteStartX} to x=${whiteStartX + whiteLength})\n`
+              if (orangeLength > 0) {
+                outputText += `  Orange streak: ${orangeLength} px (x=${whiteStartX + whiteLength} to x=${whiteStartX + whiteLength + orangeLength})\n`
+                outputText += `  Orange is ${exactPercent.toFixed(2)}% (${roundedPercent}%)\n`
+              } else {
+                outputText += `  No orange streak found after white.\n`
+              }*/
+            } else {
+              isPreviousLineWhite = false
+            }
+          }
+
+          if (isColorSimilar(r, g, b, 'white')) {
+            console.log(x);
+            if (isPreviousLineWhite) break
+            if (whiteStartX === -1)
+              whiteStartX = x
+            if (whiteStartX+whiteLength === x)
+              whiteLength++
+          }
+
+          if (whiteStartX === -1) continue
+
+          if (isColorSimilar(r, g, b, 'orange') && whiteLength >= MIN_STREAK_LENGTH) {
+            orangeLength++
+          } else if (wrongPixels <= MAX_TOLERANCE_PIXELS && whiteLength >= MIN_STREAK_LENGTH ) {
+            orangeLength++
+            wrongPixels++
+          } else {
+            continue
+          }
+        }
+      }
+      document.getElementById('content').style.display = "flex"
+      output.innerText = outputText.slice(0, outputText.length-2)
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+})
+
+</script>
+</body>
+</html>
