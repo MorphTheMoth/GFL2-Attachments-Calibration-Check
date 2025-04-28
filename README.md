@@ -6,4 +6,5 @@ Check the calibration of attachments from an image, the program tries to find a 
 
 The result is a little inconsistent because the game has various menus where you can see the attachments, and all of them are a little different, but it rarely gives a wrong result.
 
-![immagine](https://github.com/user-attachments/assets/432ad391-28c9-4319-b7c3-24b8958f5a03)
+![immagine](https://github.com/user-attachments/assets/624f8e79-51ce-45ea-b38e-6162b3b49b20)
+
