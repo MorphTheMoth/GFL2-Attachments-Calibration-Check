@@ -1,58 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Attachments Calibration Check</title>
+<head> <meta charset="UTF-8">
 <link rel="icon" type="image/png" href="https://cdn.discordapp.com/emojis/1320341246350463047.webp">
+<title>Attachments Calibration Check</title>
 <style>
-  body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: Arial, sans-serif;
-    font-size: 150%;
-    padding: 30px;
-  }
-  h1 {
-    text-align: center;
-    font-size: 2.5em;
-    color: #ffffff;
-  }
-  #content {
-    display: none;
-    align-items: flex-start;
-    gap: 30px;
-    margin-top: 30px;
-  }
-  #canvas {
-    border: 2px solid #444;
-    background-color: #1e1e1e;
-    max-width: 100%;
-  }
-  #output {
-    white-space: pre-wrap;
-    font-size: 1em;
-    border: 2px solid #444;
-    padding: 20px;
-    flex: 1;
-    min-width: 300px;
-    background-color: #1e1e1e;
-    color: #e0e0e0;
-  }
-  #pasteArea {
-    border: 3px dashed #666;
-    padding: 30px;
-    text-align: center;
-    color: #bbb;
-    margin-top: 30px;
-    cursor: pointer;
-    font-size: 1.2em;
-    background-color: #1e1e1e;
-    transition: background-color 0.3s, border-color 0.3s;
-  }
-  #pasteArea:hover {
-    background-color: #2a2a2a;
-    border-color: #888;
-  }
+  body { background-color: #121212; color: #e0e0e0; font-family: Arial, sans-serif; font-size: 150%; padding: 30px; }
+  h1 { text-align: center; font-size: 2.5em; color: #ffffff; }
+  #content { display: none; align-items: flex-start; gap: 30px; margin-top: 30px; }
+  #canvas { border: 2px solid #444; background-color: #1e1e1e; max-width: 100%; }
+  #output { white-space: pre-wrap; font-size: 1em; border: 2px solid #444; padding: 20px; flex: 1; min-width: 300px; background-color: #1e1e1e; color: #e0e0e0; }
+  #pasteArea { border: 3px dashed #666; padding: 30px; text-align: center; color: #bbb; margin-top: 30px; cursor: pointer; font-size: 1.2em; background-color: #1e1e1e; transition: background-color 0.3s, border-color 0.3s; }
+  #pasteArea:hover { background-color: #2a2a2a; border-color: #888; }
 </style>
 </head>
 <body>
@@ -65,20 +23,18 @@
 </div>
 
 <script>
-/* your script remains unchanged */
-const pasteArea = document.getElementById('pasteArea')
-const canvas = document.getElementById('canvas')
-const ctx = canvas.getContext('2d')
-const output = document.getElementById('output')
+let pasteArea = document.getElementById('pasteArea')
+let canvas = document.getElementById('canvas')
+let ctx = canvas.getContext('2d')
+let output = document.getElementById('output')
 
-// Helper to compare colors with ±5% tolerance
 function isColorSimilar(r, g, b, color) {
-  const tolerance = 0.03
-  const targetColors = {
+  let tolerance = 0.03
+  let targetColors = {
     'white': [0xEF, 0xEF, 0xEF],
     'orange': [0xF3, 0x6C, 0x1C]
   }
-  const [tr, tg, tb] = targetColors[color]
+  let [tr, tg, tb] = targetColors[color]
   return (
     Math.abs(r - tr) <= 255 * tolerance &&
     Math.abs(g - tg) <= 255 * tolerance &&
@@ -86,17 +42,31 @@ function isColorSimilar(r, g, b, color) {
   )
 }
 
+//data from https://colab.research.google.com/drive/11G6t0H3UMILEE26mEkgpP4Vi8AKy4blh
+const db = {
+  "lines_3": {
+    "value": [45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+    "calibrations": [30, 39, 52, 71, 100, 145, 221, 335, 531, 938, 1478, 3333, 6122],
+    "gold": ["600.0k", "780.0k", "1.0m", "1.4m", "2.0m", "2.9m", "4.4m", "6.7m", "10.6m", "18.8m", "29.6m", "66.7m", "122.4m"]
+  },
+  "lines_4": {
+    "value": [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75],
+    "calibrations": [29, 36, 43, 54, 68, 87, 111, 145, 207, 298, 410, 587, 1010, 1364, 1923, 3529, 5769, 13043, 21429, 27273],
+    "gold": ["580.0k", "720.0k", "860.0k", "1.1m", "1.4m", "1.7m", "2.2m", "2.9m", "4.1m", "6.0m", "8.2m", "11.7m", "20.2m", "27.3m", "38.5m", "70.6m", "115.4m", "260.9m", "428.6m", "545.5m"]
+  }
+}
+
 const MIN_STREAK_LENGTH = 50
-const MAX_TOLERANCE_PIXELS = 5 // how many wrong pixels to tolerate during orange search
+const MAX_TOLERANCE_PIXELS = 10 // how many wrong pixels to tolerate during orange search
+const PERCENT_ERROR_TOLERANCE = 1
 
 window.addEventListener('paste', (event) => {
-  const items = (event.clipboardData || event.originalEvent.clipboardData).items
-  for (const item of items) {
+  let items = (event.clipboardData || event.originalEvent.clipboardData).items
+  for (let item of items) {
     if (!(item.type.indexOf('image') === 0)) continue
 
-    const file = item.getAsFile()
-    const img = new Image()
-
+    let file = item.getAsFile()
+    let img = new Image()
 
     img.onload = () => {
       canvas.width = img.width
@@ -105,79 +75,99 @@ window.addEventListener('paste', (event) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(img, 0, 0)
       const imgData = ctx.getImageData(0, 0, img.width, img.height).data
-      var total = 0
+      let total = 0
+      let whiteStartX = -1
+      let whiteLength = 0
+      let orangeStartX = -1
+      let orangeLength = 0
+      let wrongPixels = 0
 
       let outputText = ""
       let isPreviousLineWhite = false
-      let attachmentLineNum = 1
-      for (let y = 1; y < img.height; y++) {
-        let whiteLength = 0
-        let whiteStartX = -1
-        let orangeLength = 0
-        let wrongPixels = 0
+      let attachmentLineNum = 0
 
-        for (let x = 0; x <= img.width; x++) {
+      for (let y = 0; y < img.height; y++) {
+        whiteStartX = -1
+        whiteLength = 0
+        orangeStartX = -1
+        orangeLength = 0
+        wrongPixels = 0
+
+        for (let x = 0; x < img.width; x++) {
           const imgIndex = (y * img.width + x) * 4
           const r = imgData[imgIndex]
           const g = imgData[imgIndex + 1]
           const b = imgData[imgIndex + 2]
 
-          if (x === img.width) {
-
-            if (whiteStartX != -1 && whiteLength >= MIN_STREAK_LENGTH){
-              isPreviousLineWhite = true
-              orangeLength += -wrongPixels + 2
-              whiteLength += + 1
-              console.log(`white ${whiteLength}, orange ${orangeLength}`);
-              const exactPercent = orangeLength > 0 ? ((orangeLength) / (whiteLength)) * 100 : 0
-              const roundedPercent = Math.round(exactPercent / 10) * 10
-              total += roundedPercent
-
-              outputText += `${attachmentLineNum++}  -  `
-              if (orangeLength > 0)
-                outputText += `${roundedPercent}% (${exactPercent.toFixed(1)}%)\n\n`
-              else
-                outputText += `No orange line found.\n\n`
-
-              ctx.beginPath();
-              ctx.lineWidth = 3;
-              ctx.strokeStyle = 'purple';
-              ctx.moveTo(--whiteStartX, y+12);
-              ctx.lineTo(whiteStartX + whiteLength, y+12);
-              ctx.stroke();
-              ctx.beginPath();
-              ctx.lineWidth = 3;
-              ctx.strokeStyle = 'white';
-              ctx.moveTo(whiteStartX + whiteLength, y+12);
-              ctx.lineTo(whiteStartX + whiteLength + orangeLength, y+12);
-              ctx.stroke();
-            } else {
-              isPreviousLineWhite = false
-            }
-          }
-
           if (isColorSimilar(r, g, b, 'white')) {
-            if (isPreviousLineWhite) break
             if (whiteStartX === -1)
               whiteStartX = x
             if (whiteStartX+whiteLength === x)
               whiteLength++
           }
 
-          if (whiteStartX === -1) continue
+          if (whiteLength < MIN_STREAK_LENGTH || wrongPixels >= MAX_TOLERANCE_PIXELS) continue
+          if (orangeStartX === -1)
+            if(isColorSimilar(r, g, b, 'orange'))
+              orangeStartX = x
+            else continue
 
-          if (isColorSimilar(r, g, b, 'orange') && whiteLength >= MIN_STREAK_LENGTH) {
-            orangeLength++
-          } else if (wrongPixels <= MAX_TOLERANCE_PIXELS && whiteLength >= MIN_STREAK_LENGTH ) {
-            orangeLength++
+          orangeLength++
+          if (isColorSimilar(r, g, b, 'orange')) {
+            wrongPixels = 0
+          } else if (wrongPixels < MAX_TOLERANCE_PIXELS) {
             wrongPixels++
-          } else {
-            continue
           }
         }
+
+        if (whiteLength >= MIN_STREAK_LENGTH && orangeLength > MAX_TOLERANCE_PIXELS){
+          if (isPreviousLineWhite) continue
+          isPreviousLineWhite = true
+
+          orangeLength += -wrongPixels
+          whiteLength  += 0
+          let exactPercent = orangeLength > 0 ? ((orangeLength) / (whiteLength)) * 100 : 0
+          let roundedPercent = Math.round(exactPercent / 10) * 10
+          console.log(`white ${whiteLength}, orange ${orangeLength}, ${exactPercent.toFixed(1)}%`);
+          total += roundedPercent
+
+          outputText += `${++attachmentLineNum}  -  `
+          if (orangeLength > 0) {
+            if (Math.abs(exactPercent - roundedPercent) > 5-PERCENT_ERROR_TOLERANCE)
+              outputText += `${roundedPercent}% (${exactPercent.toFixed(1)}%, might be ${exactPercent - roundedPercent > 0 ? Math.ceil(exactPercent/10)*10 : Math.floor(exactPercent/10)*10}%)\n\n`
+            else
+              outputText += `${roundedPercent}%\n\n`
+          }
+          else
+            outputText += `No orange line found.\n\n`
+
+          ctx.beginPath();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = 'purple';
+          ctx.moveTo(--whiteStartX, y+12);
+          ctx.lineTo(whiteStartX + whiteLength, y+12);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = 'white';
+          ctx.moveTo(whiteStartX + whiteLength, y+12);
+          ctx.lineTo(whiteStartX + whiteLength + orangeLength, y+12);
+          ctx.stroke();
+        } else {
+          isPreviousLineWhite = false
+        }
       }
+
+      let dbText = ''
+      if (attachmentLineNum === 3 || attachmentLineNum === 4){
+          let data = db[`lines_${attachmentLineNum}`]
+          let dbIndex = data.value.indexOf(total/10)
+          if (dbIndex != -1)
+            dbText = `  -  Average Gold: ${data.gold[dbIndex]}`
+      }
+
       document.getElementById('content').style.display = "flex"
-      output.innerText = outputText + `Total  -  ${total}%`
+      output.innerText = outputText + `Total  -  ${total}%` + dbText
     }
 
     const reader = new FileReader()
