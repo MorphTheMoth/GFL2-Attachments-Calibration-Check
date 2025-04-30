@@ -1,0 +1,161 @@
+html {
+    scrollbar-gutter: stable;
+}
+
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: Arial, sans-serif;
+    font-size: 150%;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+    color: #ffffff;
+}
+
+#content {
+    display: none;
+    align-items: flex-start;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+#canvas {
+    border: 2px solid #444;
+    background-color: #1e1e1e;
+    max-height: 50vh;
+    max-width: 40%;
+    overflow: auto;
+}
+
+#output {
+    white-space: pre-wrap;
+    font-size: 1em;
+    border: 2px solid #444;
+    padding: 20px;
+    flex: 1;
+    min-width: 300px;
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+#uploadContainer {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.upload-section {
+    border: 3px dashed #666;
+    padding: 20px;
+    text-align: center;
+    color: #bbb;
+    cursor: pointer;
+    font-size: 1.1em;
+    background-color: #1e1e1e;
+    transition: background-color 0.3s, border-color 0.3s;
+    flex: 1;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-section:hover {
+    background-color: #2a2a2a;
+    border-color: #888;
+}
+
+#fileInput {
+    display: none;
+}
+
+.history-section {
+    margin-top: 30px;
+    border: 2px solid #444;
+    background-color: #1e1e1e;
+    padding: 15px;
+}
+
+.history-header {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #2a2a2a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-content {
+    display: none;
+    padding: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.history-item {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: center;
+}
+
+.history-thumbnail {
+    max-width: 100%;
+    height: 100px;
+    object-fit: contain;
+    cursor: pointer;
+}
+
+.clear-history {
+    background: #f36c1c;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.no-highlight {
+    user-select: none;
+}
+
+button {
+    font-size: 0.8em;
+}
+
+.history-header span::before {
+    content: '➤';
+    margin-left: 10px;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.history-section.expanded .history-header span::before {
+    transform: rotate(90deg);
+}
+
+.history-section {
+    transition: transform 0.2s ease;
+}
+
+#content {
+    margin-bottom: 30px;
+    flex: 1;
+}
+  
+.history-section {
+    margin-top: auto;
+    width: calc(100% - 60px);
+    position: static;
+    bottom: 0;
+    background: #121212;
+    z-index: 1;
+}
