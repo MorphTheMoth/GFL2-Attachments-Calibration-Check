@@ -24,6 +24,8 @@ h1 {
     align-items: flex-start;
     gap: 30px;
     margin-top: 30px;
+    margin-bottom: 30px;
+    flex: 1;
 }
 
 #canvas {
@@ -146,15 +148,10 @@ button {
     transition: transform 0.2s ease;
 }
 
-#content {
-    margin-bottom: 30px;
-    flex: 1;
-}
-  
 .history-section {
     margin-top: auto;
     width: calc(100% - 60px);
-    position: static;
+    position: sticky;
     bottom: 0;
     background: #121212;
     z-index: 1;

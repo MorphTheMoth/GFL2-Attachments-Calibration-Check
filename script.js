@@ -213,6 +213,7 @@ function processImageData(img, dataUrl, options = {}) {
             dbText = `  -  Average Gold: ${data.gold[dbIndex]}`
     }
     document.getElementById('content').style.display = "flex"
+    document.getElementsByClassName('history-section')[0].style.position = "static"
     if (attachmentLineNum === 0)
         output.innerText = 'Cant find anything, the image is probably too blurry'
     else
